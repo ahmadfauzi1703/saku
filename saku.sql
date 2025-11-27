@@ -30,7 +30,7 @@ SET time_zone = "+00:00";
 CREATE TABLE `transactions` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
-  `type` enum('Income','Expense') NOT NULL,
+  `type` enum('Pemasukan','Pengeluaran') NOT NULL,
   `amount` decimal(10,2) NOT NULL,
   `description` text DEFAULT NULL,
   `photo` varchar(255) DEFAULT NULL,
@@ -43,10 +43,10 @@ CREATE TABLE `transactions` (
 --
 
 INSERT INTO `transactions` (`id`, `user_id`, `type`, `amount`, `description`, `photo`, `created_at`, `updated_at`) VALUES
-(1, 1, 'Expense', 150000.00, 'Pembayaran belanja di Toko A', 'uploads/images (1).jpeg', '2024-12-12 04:12:12', '2024-12-12 04:12:12'),
-(2, 1, 'Income', 200000.00, 'Pembayaran jasa desain', 'uploads/download (6).jpeg', '2024-12-12 04:13:03', '2024-12-12 04:23:07'),
-(3, 1, 'Income', 1500000.00, 'Transfer gaji bulan Desember', 'uploads/download (7).jpeg', '2024-12-12 04:13:33', '2024-12-12 04:13:33'),
-(4, 1, 'Expense', 50000.00, 'Pembelian alat tulis kantor', 'uploads/download (9).jpeg', '2024-12-12 04:14:02', '2024-12-12 04:14:02');
+(1, 1, 'Pengeluaran', 150000.00, 'Pembayaran belanja di Toko A', 'uploads/images (1).jpeg', '2024-12-12 04:12:12', '2024-12-12 04:12:12'),
+(2, 1, 'Pemasukkan', 200000.00, 'Pembayaran jasa desain', 'uploads/download (6).jpeg', '2024-12-12 04:13:03', '2024-12-12 04:23:07'),
+(3, 1, 'Pemasukkan', 1500000.00, 'Transfer gaji bulan Desember', 'uploads/download (7).jpeg', '2024-12-12 04:13:33', '2024-12-12 04:13:33'),
+(4, 1, 'Pengeluaran', 50000.00, 'Pembelian alat tulis kantor', 'uploads/download (9).jpeg', '2024-12-12 04:14:02', '2024-12-12 04:14:02');
 
 -- --------------------------------------------------------
 

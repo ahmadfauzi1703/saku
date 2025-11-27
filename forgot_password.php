@@ -27,6 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <!DOCTYPE html>
 <html>
+
 <head>
     <link rel="stylesheet" href="style.css">
     <title>Forgot Password</title>
@@ -36,11 +37,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin: 15px 0;
             border-radius: 5px;
         }
+
         .alert.success {
             background-color: #d4edda;
             color: #155724;
             border: 1px solid #c3e6cb;
         }
+
         .alert.error {
             background-color: #f8d7da;
             color: #721c24;
@@ -48,28 +51,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     </style>
 </head>
+
 <body>
-<div class="container">
-    <h1>Forgot Password</h1>
-    <form method="POST">
-        <input type="email" name="email" placeholder="Enter your email" required>
-        <button type="submit">Reset Password</button>
-    </form>
+    <div class="container">
+        <h1>Forgot Password</h1>
+        <form method="POST">
+            <input type="email" name="email" placeholder="Enter your email" required>
+            <button type="submit">Reset Password</button>
+        </form>
 
-    <!-- Display success or error message -->
-    <?php if ($message): ?>
-        <div class="alert <?php echo $success ? 'success' : 'error'; ?>">
-            <?php echo htmlspecialchars($message); ?>
-        </div>
-    <?php endif; ?>
+        <!-- Display success or error message -->
+        <?php if ($message): ?>
+            <div class="alert <?php echo $success ? 'success' : 'error'; ?>">
+                <?php echo $message; ?>
+            </div>
+        <?php endif; ?>
 
-    <p><a href="login.php">Back to Login</a></p>
-</div>
+        <p><a href="login.php">Back to Login</a></p>
+    </div>
 
-<script>
-    <?php if ($message): ?>
-        alert("<?php echo addslashes($message); ?>");
-    <?php endif; ?>
-</script>
+    <script>
+        <?php if ($message): ?>
+            alert("<?php echo addslashes($message); ?>");
+        <?php endif; ?>
+    </script>
 </body>
+
 </html>

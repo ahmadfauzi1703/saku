@@ -16,7 +16,7 @@ $transaction = $result->fetch_assoc();
 $saldo_akhir = 0; // Variabel untuk saldo akhir
 
 // Calculate the final balance before handling the form
-$query_balance = "SELECT SUM(CASE WHEN type = 'Income' THEN amount ELSE -amount END) AS balance FROM transactions WHERE user_id = ?";
+$query_balance = "SELECT SUM(CASE WHEN type = 'Pemasukan' THEN amount ELSE -amount END) AS balance FROM transactions WHERE user_id = ?";
 $stmt_balance = $conn->prepare($query_balance);
 $stmt_balance->bind_param("i", $_SESSION['user']['id']);
 $stmt_balance->execute();
@@ -27,21 +27,15 @@ $saldo_akhir = $row['balance'];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $type = $_POST['type'];
     $amount = floatval($_POST['amount']);
-    $description = isset($_POST['description']) ? htmlspecialchars($_POST['description'], ENT_QUOTES, 'UTF-8') : '';
-
-    $photo = $transaction['photo'];
-    if (!empty($_FILES['photo']['name'])) {
-        $photo = 'uploads/' . basename($_FILES['photo']['name']);
-        move_uploaded_file($_FILES['photo']['tmp_name'], $photo);
-    }
+    $description = isset($_POST['description']) ? $_POST['description'] : '';
 
     // Update transaction in the database
-    $stmt = $conn->prepare("UPDATE transactions SET type = ?, amount = ?, description = ?, photo = ? WHERE id = ? AND user_id = ?");
-    $stmt->bind_param("sdssii", $type, $amount, $description, $photo, $id, $_SESSION['user']['id']);
+    $stmt = $conn->prepare("UPDATE transactions SET type = ?, amount = ?, description = ? WHERE id = ? AND user_id = ?");
+    $stmt->bind_param("sdssi", $type, $amount, $description, $id, $_SESSION['user']['id']);
     $stmt->execute();
 
     // Recalculate the final balance after the update
-    $query_balance = "SELECT SUM(CASE WHEN type = 'Income' THEN amount ELSE -amount END) AS balance FROM transactions WHERE user_id = ?";
+    $query_balance = "SELECT SUM(CASE WHEN type = 'Pemasukan' THEN amount ELSE -amount END) AS balance FROM transactions WHERE user_id = ?";
     $stmt_balance = $conn->prepare($query_balance);
     $stmt_balance->bind_param("i", $_SESSION['user']['id']);
     $stmt_balance->execute();
@@ -49,71 +43,64 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $row = $result_balance->fetch_assoc();
     $saldo_akhir = $row['balance'];
 
-    // Redirect with a success flag and updated balance
     header("Location: edit.php?id=$id&updated=true&balance=" . urlencode($saldo_akhir));
     exit;
 }
 ?>
 <!DOCTYPE html>
 <html>
+
 <head>
     <link rel="stylesheet" href="style.css">
-    <title>Edit Transaction</title>
+    <title>Ubah Transaksi</title>
 </head>
+
 <body>
-<div class="container">
-    <h1>Edit Transaction</h1>
+    <div class="container">
+        <h1>Ubah Transaksi</h1>
 
-    <!-- Success Message -->
-    <?php if (isset($_GET['updated']) && $_GET['updated'] === 'true'): ?>
-        <script>
-            alert("Transaction updated successfully!");
-        </script>
-    <?php endif; ?>
-
-    <!-- Display Balance -->
-    <h3>Current Balance: Rp<?= number_format($saldo_akhir, 2, ',', '.') ?></h3>
-
-    <form method="POST" enctype="multipart/form-data">
-        <label for="type">Type:</label>
-        <select name="type" id="type" required>
-            <option>--Silahkan Pilih--</option>
-            <option value="Income" <?= $transaction['type'] === 'Income' ? 'selected' : '' ?>>Income</option>
-            <option value="Expense" <?= $transaction['type'] === 'Expense' ? 'selected' : '' ?>>Expense</option>
-        </select>
-        <label for="amount">Amount:</label>
-        <input type="number" name="amount" id="amount" value="<?= htmlspecialchars($transaction['amount'], ENT_QUOTES, 'UTF-8') ?>" placeholder="Amount" required>
-        <label for="description">Description:</label>
-        <input type="text" name="description" id="description" value="<?= htmlspecialchars($transaction['description'], ENT_QUOTES, 'UTF-8') ?>" placeholder="Description" required>
-        <label for="photo">Photo:</label>
-        <?php if (!empty($transaction['photo'])): ?>
-            <img src="<?= htmlspecialchars($transaction['photo'], ENT_QUOTES, 'UTF-8') ?>" alt="Transaction Photo" class="transaction-photo" onclick="showModal(this.src)">
-            <br>
+        <!-- Success Message -->
+        <?php if (isset($_GET['updated']) && $_GET['updated'] === 'true'): ?>
+            <script>
+                alert("Transaction updated successfully!");
+            </script>
         <?php endif; ?>
-        <input type="file" name="photo" id="photo">
-        <button type="submit">Update</button>
-    </form>
-    <p><a href="index.php">Back</a></p>
-</div>
 
-<!-- Modal for zooming images -->
-<div id="imageModal" class="modal" onclick="closeModal()">
-    <span class="modal-close" onclick="closeModal()">&times;</span>
-    <img class="modal-content" id="modalImage">
-</div>
+        <form method="POST" enctype="multipart/form-data">
+            <label for="type">Tipe:</label>
+            <select name="type" id="type" required>
+                <option>--Silahkan Pilih--</option>
+                <option value="Pemasukan" <?= $transaction['type'] === 'Pemasukan' ? 'selected' : '' ?>>Pemasukan</option>
+                <option value="Pengeluaran" <?= $transaction['type'] === 'Pengeluaran' ? 'selected' : '' ?>>Pengeluaran</option>
+            </select>
+            <label for="amount">Jumlah:</label>
+            <input type="number" name="amount" id="amount" value="<?= $transaction['amount'] ?>" placeholder="Amount" required>
+            <label for="description">Deskripsi:</label>
+            <input type="text" name="description" id="description" value="<?= $transaction['description'] ?>" placeholder="Description" required>
+            <button type="submit">Perbarui</button>
+        </form>
+        <p><a href="index.php">Kembali</a></p>
+    </div>
 
-<script>
-    function showModal(src) {
-        const modal = document.getElementById("imageModal");
-        const modalImage = document.getElementById("modalImage");
-        modal.style.display = "block";
-        modalImage.src = src;
-    }
+    <!-- Modal for zooming images -->
+    <div id="imageModal" class="modal" onclick="closeModal()">
+        <span class="modal-close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="modalImage">
+    </div>
 
-    function closeModal() {
-        const modal = document.getElementById("imageModal");
-        modal.style.display = "none";
-    }
-</script>
+    <script>
+        function showModal(src) {
+            const modal = document.getElementById("imageModal");
+            const modalImage = document.getElementById("modalImage");
+            modal.style.display = "block";
+            modalImage.src = src;
+        }
+
+        function closeModal() {
+            const modal = document.getElementById("imageModal");
+            modal.style.display = "none";
+        }
+    </script>
 </body>
+
 </html>
