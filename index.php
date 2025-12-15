@@ -99,8 +99,8 @@ unset($_SESSION['message']);
 
 			<?php if($transactions->num_rows > 0): ?>
 			<div class="table-responsive">
-				<table class="table table-striped table-hover text-center align-middle border rounded">
-					<thead class="table-dark">
+				<table class="table table-striped table-hover text-center align-middle border rounded ">
+					<thead class="table-primary">
 						<tr>
 							<th>Tanggal</th>
 							<th>Tipe</th>
