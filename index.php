@@ -19,8 +19,9 @@ $transactions = $conn->query("SELECT * FROM transactions WHERE user_id = $user_i
 
 // Query untuk data grafik
 $pemasukan = $conn->query("SELECT SUM(amount) as total FROM transactions WHERE user_id = $user_id AND type = 'Pemasukan'")->fetch_assoc()['total'] ?? 0;
-$pengeluaran = $conn->query("SELECT SUM(amount) as total FROM transactions WHERE user_id = $user_id AND type = 'Pengeluaran]
-'")->fetch_assoc()['total'] ?? 0;
+$pengeluaran = $conn->query("SELECT SUM(amount) as total FROM transactions WHERE user_id = $user_id AND type = 'Pengeluaran'")->fetch_assoc()['total'] ?? 0;
+
+$balance = $pemasukan - $pengeluaran;
 
 // Ambil pesan dari sesi jika ada
 $message = isset($_SESSION['message']) ? $_SESSION['message'] : '';
@@ -82,6 +83,10 @@ unset($_SESSION['message']); // Hapus pesan setelah diambil
 		.actions a:last-child {
 			margin-right: 0;
 		}
+
+		.card h2{
+			text-align: left;
+		}
 	</style>
 </head>
 
@@ -94,6 +99,9 @@ unset($_SESSION['message']); // Hapus pesan setelah diambil
 
 
 		<div class="tabs">
+			<div class="tab" data-tab="dompet">
+				Dompetku
+			</div>
 			<div class="tab active" data-tab="transactions">
 				Transaksi
 			</div>
@@ -102,7 +110,30 @@ unset($_SESSION['message']); // Hapus pesan setelah diambil
 			</div>
 		</div>
 
+		<div id="dompet" class="tab-content">
+			<h2>Dompetku</h2>
+			<div class="summary-cards">
+				<div class="card">
+					<h3>Saldo Saat Ini</h3>
+					<h2 style="color: #2c3e50;">Rp. <?= number_format($balance, 2); ?></h2>
+				</div>
+				<div class="card success-card">
+					<h3>Pemasukan</h3>
+					<h2 style="color: #27ae60;">Rp. <?= number_format($pemasukan, 2); ?></h2>
+				</div>
+				<div class="card error-card">
+					<h3>Pengeluaran</h3>
+					<h2 style="color: #c0392b;">Rp. <?= number_format($pengeluaran, 2); ?></h2>
+				</div>
+			</div>
+			
+			<div class="chart-container">
+				<canvas id="transactionChart"></canvas>
+			</div>
+		</div>
+
 		<div id="transactions" class="tab-content active">
+
 			<h2>Daftar Transaksi</h2>
 			<form method="GET" style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
 				<input type="text" name="search" placeholder="Cari berdasarkan deskripsi..." value="<?= $search; ?>" style="padding: 10px; width: 350px;">
@@ -143,9 +174,7 @@ unset($_SESSION['message']); // Hapus pesan setelah diambil
 			<?php else: ?>
 				<p>Tidak ada transaksi. <a href="create.php">Tambah Transaksi</a></p>
 			<?php endif; ?>
-			<div class="chart-container">
-				<canvas id="transactionChart"></canvas>
-			</div>
+
 		</div>
 
 
